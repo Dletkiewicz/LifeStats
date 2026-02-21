@@ -1,0 +1,15 @@
+package pl.dletkiewicz.lifestats.domain.model;
+
+import lombok.Getter;
+
+@Getter
+public enum Message {
+
+    USER_ALREADY_EXISTS("User with that email already exists");
+
+    private final String value;
+
+    Message(String value) {
+        this.value = value;
+    }
+}
