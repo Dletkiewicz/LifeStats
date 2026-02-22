@@ -3,10 +3,13 @@ package pl.dletkiewicz.lifestats.infrastructure.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.dletkiewicz.lifestats.domain.model.User;
+import pl.dletkiewicz.lifestats.domain.model.UserProfile;
+import pl.dletkiewicz.lifestats.domain.port.spi.UserProfileSpiPort;
 import pl.dletkiewicz.lifestats.domain.port.spi.UserSpiPort;
-import pl.dletkiewicz.lifestats.infrastructure.entity.UserEntity;
 import pl.dletkiewicz.lifestats.infrastructure.mapper.UserEntityMapper;
+import pl.dletkiewicz.lifestats.infrastructure.mapper.UserProfileEntityMapper;
 import pl.dletkiewicz.lifestats.infrastructure.repository.UserJpaRepository;
+import pl.dletkiewicz.lifestats.infrastructure.repository.UserProfileJpaRepository;
 
 import java.util.Optional;
 

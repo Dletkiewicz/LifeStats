@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum Message {
 
     USER_ALREADY_EXISTS("User with that email already exists"),
-    INVALID_CREDENTIALS("Invalid login credentials");
+    INVALID_CREDENTIALS("Invalid login credentials"),
+    NICKNAME_TAKEN("Nickname is already taken");
 
     private final String value;
 
