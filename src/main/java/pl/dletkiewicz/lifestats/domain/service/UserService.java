@@ -1,6 +1,7 @@
 package pl.dletkiewicz.lifestats.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.dletkiewicz.lifestats.domain.exception.UserAlreadyExistsException;
 import pl.dletkiewicz.lifestats.domain.model.RegisterRequest;
@@ -10,11 +11,12 @@ import pl.dletkiewicz.lifestats.domain.port.spi.UserSpiPort;
 
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserApiPort {
 
     private final UserSpiPort userSpiPort;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void register(RegisterRequest registerRequest) {
@@ -22,7 +24,10 @@ public class UserService implements UserApiPort {
             throw new UserAlreadyExistsException();
         }
 
-        User user = new User(UUID.randomUUID(), registerRequest.getEmail(), registerRequest.getPassword());
+        String passwordHash = passwordEncoder.encode(registerRequest.getPassword());
+        User user = new User(UUID.randomUUID(), registerRequest.getEmail(), passwordHash);
+
         userSpiPort.save(user);
     }
 }
+

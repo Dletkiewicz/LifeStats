@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.dletkiewicz.lifestats.domain.model.User;
 import pl.dletkiewicz.lifestats.domain.port.spi.UserSpiPort;
+import pl.dletkiewicz.lifestats.infrastructure.entity.UserEntity;
 import pl.dletkiewicz.lifestats.infrastructure.mapper.UserEntityMapper;
 import pl.dletkiewicz.lifestats.infrastructure.repository.UserJpaRepository;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,5 +25,10 @@ public class UserAdapter implements UserSpiPort {
     @Override
     public boolean existsByEmail(String email) {
         return userJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userEntityMapper.toDomain(userJpaRepository.findByEmail(email));
     }
 }
