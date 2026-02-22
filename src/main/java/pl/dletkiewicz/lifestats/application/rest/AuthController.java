@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.dletkiewicz.lifestats.application.dto.LoginRequestDto;
+import pl.dletkiewicz.lifestats.application.dto.LoginResponseDto;
 import pl.dletkiewicz.lifestats.application.dto.RegisterRequestDto;
 import pl.dletkiewicz.lifestats.application.mapper.UserMapper;
 import pl.dletkiewicz.lifestats.domain.port.api.UserApiPort;
@@ -22,5 +24,11 @@ public class AuthController {
     public ResponseEntity<Void> register(@RequestBody RegisterRequestDto payload) {
         userApiPort.register(userMapper.map(payload));
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto payload) {
+        String token = userApiPort.login(userMapper.map(payload));
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 }

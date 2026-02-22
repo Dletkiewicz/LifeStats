@@ -29,6 +29,6 @@ public class UserAdapter implements UserSpiPort {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return userEntityMapper.toDomain(userJpaRepository.findByEmail(email));
+        return userJpaRepository.findByEmail(email).map(userEntityMapper::toDomain);
     }
 }
