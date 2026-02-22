@@ -15,7 +15,7 @@
             </column>
 
             <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="password_hash" type="VARCHAR(255)">
@@ -27,10 +27,6 @@
         </createTable>
 
         <addUniqueConstraint tableName="users" columnNames="email" constraintName="uk_users_email"/>
-
-        <createIndex tableName="users" indexName="idx_users_email">
-            <column name="email"/>
-        </createIndex>
     </changeSet>
 
 </databaseChangeLog>

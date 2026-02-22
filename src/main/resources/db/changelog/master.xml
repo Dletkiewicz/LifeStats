@@ -1,12 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--  File type  -->
+    <property name="fileType" value="BLOB" dbms="oracle,mssql,hsqldb"/>
+    <property name="fileType" value="LONGBLOB" dbms="mysql"/>
+    <property name="fileType" value="OID" dbms="postgresql"/>
+    <!--  User json type  -->
+    <property name="userJsonType" value="jsonb" dbms="postgresql"/>
+    <property name="userJsonType" value="varchar(255)" dbms="h2,oracle,mssql,hsqldb"/>
+    <!--  now  -->
+    <property name="now" value="now()" dbms="mysql,h2, postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="getdate()" dbms="mssql"/>
 
-<databaseChangeLog
-xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="
-http://www.liquibase.org/xml/ns/dbchangelog
-https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
-
-<include file="db/changelog/001-create-users.xml"/>
-
+    <!--  Include Scripts  -->
+    <include file="v1.0/000-version.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
