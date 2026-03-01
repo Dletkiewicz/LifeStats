@@ -15,8 +15,10 @@ import pl.dletkiewicz.lifestats.domain.port.spi.UserExperienceSpiPort;
 import pl.dletkiewicz.lifestats.domain.port.spi.UserProfileSpiPort;
 import pl.dletkiewicz.lifestats.domain.port.spi.UserSpiPort;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import static pl.dletkiewicz.lifestats.domain.service.StringUtil.normalizeEmail;
+import static pl.dletkiewicz.lifestats.domain.service.StringUtil.normalizeNickname;
 
 @Service
 @RequiredArgsConstructor
@@ -31,40 +33,66 @@ public class UserService implements UserApiPort {
     @Override
     @Transactional
     public RegisterUserResult register(RegisterRequest registerRequest) {
-        if (userSpiPort.existsByEmail(registerRequest.getEmail())) {
-            throw new UserAlreadyExistsException();
-        }
+        String email = normalizeEmail(registerRequest.getEmail());
+        String nickname = normalizeNickname(registerRequest.getNickname());
 
-        if (userProfileSpiPort.existsByNickname(registerRequest.getNickname())) {
-            throw new NicknameAlreadyTakenException();
-        }
+        ensureEmailAvailable(email);
+        ensureNicknameAvailable(nickname);
 
-        String passwordHash = passwordEncoder.encode(registerRequest.getPassword());
+        UserRegistrationData userRegistrationData = createRegistrationData(email, nickname, registerRequest.getPassword());
+        persistRegistrationData(userRegistrationData);
 
-        UUID userId = UUID.randomUUID();
-        User user = new User(userId, registerRequest.getEmail(), passwordHash);
-        UserProfile userProfile = new UserProfile(userId, registerRequest.getNickname());
-        UserExperience userExperience = new UserExperience(userId, 0L);
-
-        userSpiPort.save(user);
-        userProfileSpiPort.save(userProfile);
-        userExperienceSpiPort.save(userExperience);
-
-        return new RegisterUserResult(userId, userProfile.getNickname());
+        return new RegisterUserResult(userRegistrationData.user().getId(), userRegistrationData.userProfile().getNickname());
     }
 
     @Override
     public String login(LoginRequest loginRequest) {
-        User user = userSpiPort.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new UserNotExistsException(loginRequest.getEmail()));
+        String email = normalizeEmail(loginRequest.getEmail());
+        User user = findUserByEmailOrThrow(email);
 
-        boolean isPasswordMatching = passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash());
+        verifyPasswordOrThrow(loginRequest.getPassword(), user.getPasswordHash());
 
+        return tokenProviderSpiPort.generateAccessToken(user.getId(), user.getEmail());
+    }
+
+    private void verifyPasswordOrThrow(String rawPassword, String passwordHash) {
+        boolean isPasswordMatching = passwordEncoder.matches(rawPassword, passwordHash);
         if (!isPasswordMatching) {
             throw new InvalidCredentialsException();
         }
+    }
 
-        return tokenProviderSpiPort.generateAccessToken(user.getId(), user.getEmail());
+    private User findUserByEmailOrThrow(String email) {
+        return userSpiPort.findByEmail(email)
+                .orElseThrow(() -> new UserNotExistsException(email));
+    }
+
+    private void persistRegistrationData(UserRegistrationData userRegistrationData) {
+        userSpiPort.save(userRegistrationData.user());
+        userProfileSpiPort.save(userRegistrationData.userProfile());
+        userExperienceSpiPort.save(userRegistrationData.userExperience());
+    }
+
+    private UserRegistrationData createRegistrationData(String email, String nickname, String rawPassword) {
+        String passwordHash = passwordEncoder.encode(rawPassword);
+        UUID userId = UUID.randomUUID();
+        User user = new User(userId, email, passwordHash);
+        UserProfile userProfile = new UserProfile(userId, nickname);
+        UserExperience userExperience = new UserExperience(userId, 0L);
+
+        return new UserRegistrationData(user, userProfile, userExperience);
+    }
+
+    private void ensureEmailAvailable(String email) {
+        if (userSpiPort.existsByEmail(email)) {
+            throw new UserAlreadyExistsException();
+        }
+    }
+
+    private void ensureNicknameAvailable(String nickname) {
+        if (userProfileSpiPort.existsByNickname(nickname)) {
+            throw new NicknameAlreadyTakenException();
+        }
     }
 }
 
